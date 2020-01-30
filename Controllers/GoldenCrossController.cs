@@ -22,8 +22,8 @@ namespace BacktraderDataApi.Controllers
             _goldenCrossService = goldenCrossService;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<List<GoldenCross>>> GetAsync([FromBody]PagedQuery query)
+        [HttpPost]
+        public async Task<ActionResult<List<GoldenCross>>> PostAsync([FromBody]PagedQuery query)
         {
             return await _goldenCrossService.Get(query.pageNumber, query.count, query.minDate);
         }
