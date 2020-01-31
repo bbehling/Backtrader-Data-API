@@ -22,19 +22,61 @@ namespace BacktraderDataApi.service
             _strategies = database.GetCollection<GoldenCross>(settings.CollectionName);
         }
 
-        public async Task<List<GoldenCross>> Get(int pageNumber, int nPerPage, string minDate)
+        public async Task<Result> Get(int pageIndex, int pageSize, string minDate, string maxDate)
         {
-            var min = DateTime.ParseExact(minDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-            var max = new DateTime(2020, 01, 27, 23, 0, 0);
 
             var myArray = new JArray();
-            var json2 = await _strategies.Find(x =>
-                    x.buyDate > min &
-                    x.buyDate < max)
-                .Skip(pageNumber > 0 ? ((pageNumber - 1) * nPerPage) : 0)
-                .Limit(nPerPage).ToListAsync<GoldenCross>();
 
-            return json2;
+            var result = new Result();
+            result.goldenCrosses = new List<GoldenCross>();
+
+            // TODO - clean up this IF statement junk. First change ParseExact to TryParseExact
+            if (string.IsNullOrEmpty(maxDate) && !string.IsNullOrEmpty(minDate))
+            {
+                var min = DateTime.ParseExact(minDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+                var max = min.AddDays(1);
+
+                result.totalCount = _strategies.Find(x =>
+                                    x.buyDate >= min &
+                                    x.buyDate < max).CountDocuments();
+
+                if (result.totalCount > 0)
+                {
+                    result.goldenCrosses = await _strategies.Find(x =>
+                                    x.buyDate >= min &
+                                    x.buyDate < max)
+                                    .SortBy(x => x.buyDate)
+                                .Skip(pageIndex > 0 ? ((pageIndex) * pageSize) : 0)
+                                .Limit(pageSize).ToListAsync<GoldenCross>();
+                }
+
+                return result;
+            }
+            else if (!string.IsNullOrEmpty(maxDate) && !string.IsNullOrEmpty(minDate))
+            {
+                var min = DateTime.ParseExact(minDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+                var max = DateTime.ParseExact(maxDate, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+
+                result.totalCount = _strategies.Find(x =>
+                                    x.buyDate >= min &
+                                    x.buyDate < max).CountDocuments();
+                if (result.totalCount > 0)
+                {
+                    result.goldenCrosses = await _strategies.Find(x =>
+                                                        x.buyDate >= min &
+                                                        x.buyDate <= max)
+                                                    .SortBy(x => x.buyDate)
+                                                    .Skip(pageIndex > 0 ? ((pageIndex) * pageSize) : 0)
+                                                    .Limit(pageSize).ToListAsync<GoldenCross>();
+                }
+
+
+                return result;
+            }
+            else
+            {
+                return result;
+            }
         }
     }
 }

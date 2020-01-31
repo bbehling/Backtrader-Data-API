@@ -23,9 +23,9 @@ namespace BacktraderDataApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<List<GoldenCross>>> PostAsync([FromBody]PagedQuery query)
+        public async Task<ActionResult<Result>> PostAsync([FromBody]PagedQuery query)
         {
-            return await _goldenCrossService.Get(query.pageNumber, query.count, query.minDate);
+            return await _goldenCrossService.Get(query.pageIndex, query.pageSize, query.minDate, query.maxDate);
         }
     }
 }
