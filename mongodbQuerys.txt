@@ -1,0 +1,16 @@
+aggregate
+
+by date:
+db.getCollection('golden_crosses').aggregate([
+  {
+    $group: {
+      _id: {
+        year: { $year: "$buyDate" }
+      },
+      count: { $sum: 1 }
+    }
+  },
+  {
+    $sort : { "_id.year": -1 }
+  }
+])
