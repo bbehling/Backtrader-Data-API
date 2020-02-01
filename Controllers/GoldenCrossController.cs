@@ -16,16 +16,24 @@ namespace BacktraderDataApi.Controllers
     {
 
         private readonly GoldenCrossService _goldenCrossService;
+        private readonly GoldenCrossAggregationService _goldenCrossAggregationService;
 
-        public GoldenCrossController(ILogger<GoldenCrossController> logger, GoldenCrossService goldenCrossService)
+        public GoldenCrossController(ILogger<GoldenCrossController> logger, GoldenCrossService goldenCrossService,
+            GoldenCrossAggregationService goldenCrossAggregationService)
         {
             _goldenCrossService = goldenCrossService;
+            _goldenCrossAggregationService = goldenCrossAggregationService;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<Result>> PostAsync([FromBody]PagedQuery query)
+        [HttpPost("date")]
+        public async Task<ActionResult<Result>> Date([FromBody]PagedQuery query)
         {
             return await _goldenCrossService.Get(query.pageIndex, query.pageSize, query.minDate, query.maxDate);
+        }
+        [HttpGet("top10")]
+        public async Task<ActionResult<List<AggregateTop10Result>>> top10()
+        {
+            return await _goldenCrossAggregationService.Get();
         }
     }
 }

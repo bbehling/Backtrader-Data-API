@@ -37,6 +37,7 @@ namespace BacktraderDataApi
                 sp.GetRequiredService<IOptions<DatabaseSettings>>().Value);
 
             services.AddSingleton<GoldenCrossService>();
+            services.AddSingleton<GoldenCrossAggregationService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
