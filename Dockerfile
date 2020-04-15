@@ -3,7 +3,10 @@ WORKDIR /app
 
 # Copy csproj and restore as distinct layers
 COPY *.csproj ./
-RUN dotnet restore
+# for some reason  mcr.microsoft.com/dotnet/core/sdk:3.1 crashed with a missing DnsClient.dll 
+# when executing dotnet restore 
+# but seems to work withtout the command
+#RUN dotnet restore
 
 # Copy everything else and build
 COPY . ./
